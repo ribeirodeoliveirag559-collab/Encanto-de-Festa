@@ -1177,6 +1177,41 @@ let products = [];
 let activeFilter = '';
 
 /* ── STORAGE ── */
+
+async function saveProduct() {
+  const name = document.getElementById('f-name').value.trim();
+  const price = parseFloat(document.getElementById('f-price').value);
+  if(!name){toast('⚠️ Informe o nome!',false);return;}
+  if(isNaN(price)||price<0){toast('⚠️ Preço inválido!',false);return;}
+
+  const editId = document.getElementById('edit-id').value;
+  const prod = {
+    id: editId || '',
+    tempId: Date.now().toString(),
+    name, price,
+    cat: document.getElementById('f-cat').value,
+    status: document.getElementById('f-status').value,
+    img: document.getElementById('f-img').value.trim(),
+    desc: document.getElementById('f-desc').value.trim(),
+    date: editId ? null : new Date().toLocaleDateString('pt-BR')
+  };
+
+  toast('⏳ Salvando...', true);
+
+  if (window.firebaseSave) {
+    const ok = await window.firebaseSave(prod);
+    if (ok) {
+      toast(editId ? '✅ Produto atualizado!' : '🎉 Produto adicionado!');
+      clearAdminForm();
+    } else {
+      toast('❌ Erro ao salvar!', false);
+    }
+  } else {
+    toast('❌ Firebase não carregou!', false);
+    console.error('Firebase não disponível - tente recarregar a página');
+  }
+}
+
 function loadProducts() {
   // Carrega cache local enquanto Firebase conecta
   try {
@@ -1436,134 +1471,4 @@ function clearAdminForm() {
   document.getElementById('form-title-text').textContent='Adicionar produto';
   document.getElementById('edit-notice').classList.remove('show');
 }
-function saveProduct() {
-  const name = document.getElementById('f-name').value.trim();
-  const price = parseFloat(document.getElementById('f-price').value);
-  if(!name){toast('⚠️ Informe o nome!',false);return;}
-  if(isNaN(price)||price<0){toast('⚠️ Preço inválido!',false);return;}
-  const editId = document.getElementById('edit-id').value;
-  const prod = {
-    id: editId||Date.now().toString(),
-    name, price,
-    cat: document.getElementById('f-cat').value,
-    status: document.getElementById('f-status').value,
-    img: document.getElementById('f-img').value.trim(),
-    desc: document.getElementById('f-desc').value.trim(),
-    date: editId ? null : new Date().toLocaleDateString('pt-BR')
-  };
-  if(editId){
-    const i=products.findIndex(p=>p.id===editId);
-    if(i>=0){prod.date=products[i].date;products[i]=prod;}
-    toast('✅ Produto atualizado!');
-  } else {
-    products.unshift(prod);
-    toast('🎉 Produto adicionado!');
-  }
-  saveProducts();
-  clearAdminForm();
-  renderAdminList();
-  renderCatalog();
-  updateStats();
-}
-function editProduct(id) {
-  const p=products.find(x=>x.id===id);if(!p)return;
-  document.getElementById('edit-id').value=p.id;
-  document.getElementById('f-name').value=p.name;
-  document.getElementById('f-price').value=p.price;
-  document.getElementById('f-img').value=p.img||'';
-  if(p.img){
-    document.getElementById('img-preview').src=p.img;
-    document.getElementById('img-preview-wrap').style.display='flex';
-    document.getElementById('img-preview-wrap').style.alignItems='center';
-    document.getElementById('img-upload-label').textContent='📷 Trocar imagem';
-  } else { clearImage(); }
-  document.getElementById('f-desc').value=p.desc||'';
-  document.getElementById('f-cat').value=p.cat;
-  document.getElementById('f-status').value=p.status;
-  document.getElementById('form-title-text').textContent='Editando produto';
-  document.getElementById('edit-notice').classList.add('show');
-  document.getElementById('admin-modal').scrollTo({top:0,behavior:'smooth'});
-}
-async function deleteProduct(id) {
-  if(!confirm('Excluir este produto?'))return;
-  const prod = products.find(p=>p.id===id);
-  if (window.firebaseDelete) {
-    const ok = await window.firebaseDelete(id, prod ? prod.img : null);
-    if(ok) toast('🗑️ Produto removido.');
-    else toast('❌ Erro ao remover.', false);
-  } else {
-    products=products.filter(p=>p.id!==id);
-    storageSave(STORAGE_KEY, products);
-    renderAdminList();
-    renderCatalog();
-    updateStats();
-    toast('🗑️ Produto removido.');
-  }
-}
-function renderAdminList() {
-  const list=document.getElementById('admin-prod-list');
-  if(products.length===0){
-    list.innerHTML='<div class="adm-empty">Nenhum produto ainda. Adicione o primeiro acima!</div>';
-    return;
-  }
-  list.innerHTML=products.map(p=>{
-    const thumbHtml=p.img
-      ?`<div class="adm-thumb"><img src="${p.img}" onerror="this.parentElement.innerHTML='🎁'"></div>`
-      :`<div class="adm-thumb">🎁</div>`;
-    const av=p.status==='disponível';
-    return `<div class="adm-prod-row">
-      ${thumbHtml}
-      <div class="adm-info">
-        <div class="adm-name">${p.name}</div>
-        <div class="adm-meta">
-          <span class="adm-tag adm-tag-cat">${p.cat}</span>
-          <span class="adm-tag ${av?'adm-tag-av':'adm-tag-un'}">${av?'Disponível':'Indisponível'}</span>
-        </div>
-      </div>
-      <div class="adm-price">R$ ${p.price.toFixed(2).replace('.',',')}</div>
-      <div class="adm-actions">
-        <button class="btn-adm-edit" onclick="editProduct('${p.id}')">Editar</button>
-        <button class="btn-adm-del" onclick="deleteProduct('${p.id}')">Excluir</button>
-      </div>
-    </div>`;
-  }).join('');
-}
 
-loadProducts();
-
-// Fix sticky positions on resize for mobile
-function fixStickyPositions() {
-  const headerH = document.querySelector('.site-header').offsetHeight;
-  document.querySelector('.filters-wrap').style.top = headerH + 'px';
-}
-fixStickyPositions();
-window.addEventListener('resize', fixStickyPositions);
-</script>
-
-<!-- MODAL DETALHES PRODUTO -->
-<div class="produto-overlay" id="produto-overlay" onclick="fecharProdutoOnBackdrop(event)">
-  <div class="produto-modal" id="produto-modal">
-    <div class="produto-modal-img-wrap" id="produto-modal-img-wrap" style="position:relative;"></div>
-    <div class="produto-modal-body">
-      <div class="produto-modal-cat" id="produto-modal-cat"></div>
-      <div class="produto-modal-titulo" id="produto-modal-titulo"></div>
-      <div class="produto-modal-divider"></div>
-      <div class="produto-modal-desc-label">Itens inclusos</div>
-      <div class="produto-modal-desc" id="produto-modal-desc"></div>
-      <div class="produto-modal-footer">
-        <div class="produto-modal-preco">
-          <span class="produto-modal-preco-label">Valor</span>
-          <strong id="produto-modal-preco"></strong>
-        </div>
-        <a class="btn-pedir-modal" id="produto-modal-btn" href="#" target="_blank">
-          <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.553 4.116 1.524 5.847L.057 23.928l6.246-1.638A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.808 9.808 0 01-5.031-1.38l-.361-.214-3.741.981.998-3.648-.235-.374A9.817 9.817 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12 17.43 21.818 12 21.818z"/></svg>
-          Fazer Pedido
-        </a>
-      </div>
-    </div>
-  </div>
-</div>
-</div>
-
-</body>
-</html>
