@@ -872,8 +872,7 @@ body::before{
   .footer-link{padding:8px 12px;font-size:12px;}
 }
 </style>
-<!-- Firebase SDK (compat - funciona em qualquer contexto) -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script>
@@ -952,6 +951,94 @@ body::before{
   // Inicia quando página carregar
   window.addEventListener('DOMContentLoaded', function() {
     window.initFirebase();
+  });
+</script>
+
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://brnsizczqjedggnvznsa.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_ZlvKzw4A-6VEFdMQ7l8ysA_ZKI6ht2_';
+  
+  const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // Carregar produtos do Supabase
+  window.supabaseLoad = async function() {
+    try {
+      const { data, error } = await _supabase
+        .from('produtos')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) { console.error('Erro ao carregar:', error); return; }
+      
+      // Mapear descricao -> desc para compatibilidade
+      products = (data || []).map(p => ({
+        ...p,
+        desc: p.descricao || p.desc || ''
+      }));
+      storageSave(STORAGE_KEY, products);
+      renderCatalog();
+      renderAdminList();
+      updateStats();
+      console.log('Supabase: ' + products.length + ' produtos carregados!');
+    } catch(e) {
+      console.error('Erro Supabase:', e);
+    }
+  };
+
+  // Salvar produto no Supabase
+  window.supabaseSave = async function(prod) {
+    try {
+      const editId = prod.id;
+      const data = {
+        name: prod.name,
+        price: prod.price,
+        cat: prod.cat,
+        status: prod.status,
+        img: prod.img || '',
+        descricao: prod.desc || ''
+      };
+
+      let result;
+      if (editId) {
+        result = await _supabase.from('produtos').update(data).eq('id', editId);
+      } else {
+        result = await _supabase.from('produtos').insert([data]);
+      }
+
+      if (result.error) {
+        console.error('Erro ao salvar:', result.error);
+        return false;
+      }
+
+      // Recarregar lista do servidor
+      await window.supabaseLoad();
+      return true;
+    } catch(e) {
+      console.error('Erro Supabase save:', e);
+      return false;
+    }
+  };
+
+  // Deletar produto do Supabase
+  window.supabaseDelete = async function(id) {
+    try {
+      const { error } = await _supabase.from('produtos').delete().eq('id', id);
+      if (error) { console.error('Erro ao deletar:', error); return false; }
+      await window.supabaseLoad();
+      return true;
+    } catch(e) {
+      console.error('Erro Supabase delete:', e);
+      return false;
+    }
+  };
+
+  // Iniciar quando página carregar
+  window.addEventListener('DOMContentLoaded', function() {
+    window.supabaseLoad();
+    // Atualizar a cada 30 segundos para pegar mudanças de outros dispositivos
+    setInterval(function() { window.supabaseLoad(); }, 30000);
   });
 </script>
 
@@ -1186,46 +1273,33 @@ async function saveProduct() {
   if(isNaN(price) || price < 0){ toast('⚠️ Preço inválido!', false); return; }
 
   const editId = document.getElementById('edit-id').value;
-  const id = editId || Date.now().toString();
   const prod = {
-    id: id,
+    id: editId || null,
     name: name,
     price: price,
     cat: document.getElementById('f-cat').value,
     status: document.getElementById('f-status').value,
     img: document.getElementById('f-img').value.trim(),
-    desc: document.getElementById('f-desc').value.trim(),
-    createdAt: editId ? (products.find(p=>p.id===editId)||{}).createdAt : new Date().toISOString()
+    desc: document.getElementById('f-desc').value.trim()
   };
 
-  // Salva localmente imediatamente (feedback instantâneo)
-  if(editId) {
-    const i = products.findIndex(p => p.id === editId);
-    if(i >= 0) products[i] = prod;
-  } else {
-    products.unshift(prod);
-  }
-  storageSave(STORAGE_KEY, products);
-  renderCatalog();
-  renderAdminList();
-  updateStats();
-  clearAdminForm();
-  toast(editId ? '✅ Produto atualizado!' : '🎉 Produto adicionado!');
+  toast('⏳ Salvando...', true);
 
-  // Tenta salvar no Firebase em background
-  if (window.firebaseSave) {
-    try {
-      const fbProd = Object.assign({}, prod);
-      await window.firebaseSave(fbProd);
-      console.log('Firebase: produto salvo!');
-    } catch(e) {
-      console.warn('Firebase falhou, salvo localmente:', e);
+  if (window.supabaseSave) {
+    const ok = await window.supabaseSave(prod);
+    if(ok) {
+      toast(editId ? '✅ Produto atualizado!' : '🎉 Produto adicionado!');
+      clearAdminForm();
+    } else {
+      toast('❌ Erro ao salvar!', false);
     }
+  } else {
+    toast('❌ Supabase não carregou!', false);
   }
 }
 
 function loadProducts() {
-  // Carrega cache local enquanto Firebase conecta
+  // Carrega cache local primeiro (rápido)
   try {
     products = storageLoad(STORAGE_KEY) || [];
   } catch(e) { products = []; }
@@ -1489,9 +1563,9 @@ function clearAdminForm() {
 
 async function deleteProduct(id) {
   if(!confirm('Excluir este produto?'))return;
-  const prod = products.find(p=>p.id===id);
-  if (window.firebaseDelete) {
-    const ok = await window.firebaseDelete(id, prod ? prod.img : null);
+  toast('⏳ Removendo...', true);
+  if (window.supabaseDelete) {
+    const ok = await window.supabaseDelete(id);
     if(ok) toast('🗑️ Produto removido.');
     else toast('❌ Erro ao remover.', false);
   } else {
