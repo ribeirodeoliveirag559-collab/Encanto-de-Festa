@@ -1182,35 +1182,45 @@ async function saveProduct() {
   const name = document.getElementById('f-name').value.trim();
   const priceRaw = document.getElementById('f-price').value.replace(',','.');
   const price = parseFloat(priceRaw);
-  if(!name){toast('⚠️ Informe o nome!',false);return;}
-  if(isNaN(price)||price<0){toast('⚠️ Preço inválido!',false);return;}
+  if(!name){ toast('⚠️ Informe o nome!', false); return; }
+  if(isNaN(price) || price < 0){ toast('⚠️ Preço inválido!', false); return; }
 
   const editId = document.getElementById('edit-id').value;
+  const id = editId || Date.now().toString();
   const prod = {
-    id: editId || '',
-    tempId: Date.now().toString(),
-    name, price,
+    id: id,
+    name: name,
+    price: price,
     cat: document.getElementById('f-cat').value,
     status: document.getElementById('f-status').value,
     img: document.getElementById('f-img').value.trim(),
     desc: document.getElementById('f-desc').value.trim(),
-    date: editId ? null : new Date().toLocaleDateString('pt-BR')
+    createdAt: editId ? (products.find(p=>p.id===editId)||{}).createdAt : new Date().toISOString()
   };
 
-  toast('⏳ Salvando...', true);
-  console.log('Firebase disponível:', !!window.firebaseSave);
-
-  if (window.firebaseSave) {
-    const ok = await window.firebaseSave(prod);
-    if (ok) {
-      toast(editId ? '✅ Produto atualizado!' : '🎉 Produto adicionado!');
-      clearAdminForm();
-    } else {
-      toast('❌ Erro ao salvar!', false);
-    }
+  // Salva localmente imediatamente (feedback instantâneo)
+  if(editId) {
+    const i = products.findIndex(p => p.id === editId);
+    if(i >= 0) products[i] = prod;
   } else {
-    toast('❌ Firebase não carregou!', false);
-    console.error('Firebase não disponível - tente recarregar a página');
+    products.unshift(prod);
+  }
+  storageSave(STORAGE_KEY, products);
+  renderCatalog();
+  renderAdminList();
+  updateStats();
+  clearAdminForm();
+  toast(editId ? '✅ Produto atualizado!' : '🎉 Produto adicionado!');
+
+  // Tenta salvar no Firebase em background
+  if (window.firebaseSave) {
+    try {
+      const fbProd = Object.assign({}, prod);
+      await window.firebaseSave(fbProd);
+      console.log('Firebase: produto salvo!');
+    } catch(e) {
+      console.warn('Firebase falhou, salvo localmente:', e);
+    }
   }
 }
 
