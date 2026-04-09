@@ -1473,7 +1473,7 @@ function clearAdminForm() {
 }
 
 
-function saveProduct_old_removed() {}
+
 
 async function deleteProduct(id) {
   if(!confirm('Excluir este produto?'))return;
@@ -1524,101 +1524,19 @@ function renderAdminList() {
 /* Mobile touch fix */
 document.addEventListener("touchstart",function(){},true);
 
-function openAdminOverlay() {
-  var overlay = document.getElementById('admin-overlay');
-  overlay.style.display = 'block';
-  overlay.scrollTop = 0;
-  document.documentElement.style.overflow = 'hidden';
-  document.body.style.overflow = 'hidden';
-  document.body.style.position = 'fixed';
-  document.body.style.width = '100%';
-  document.getElementById('pw-input').value = '';
-  document.getElementById('login-err').style.display = 'none';
-  document.getElementById('login-screen').style.display = 'block';
-  document.getElementById('admin-panel').classList.remove('open');
-}
 
-function closeOnBackdrop(e) {
-  if (e.target === document.getElementById('admin-overlay')) closeAdmin();
-}
 
-function closeAdmin() {
-  var overlay = document.getElementById('admin-overlay');
-  overlay.style.display = 'none';
-  overlay.classList.remove('open');
-  document.documentElement.style.overflow = '';
-  document.body.style.overflow = '';
-  document.body.style.position = '';
-  document.body.style.width = '';
-}
 
-function doLogin() {
-  const pw = document.getElementById('pw-input').value;
-  if(pw === 'nnannynnh') {
-    document.getElementById('login-screen').style.display='none';
-    document.getElementById('admin-panel').classList.add('open');
-    renderAdminList();
-  } else {
-    document.getElementById('login-err').style.display='block';
-    document.getElementById('pw-input').value='';
-    document.getElementById('pw-input').focus();
-  }
-}
 
-function abrirProduto(id) {
-  var p = products.find(function(x){ return x.id === id; });
-  if (!p) return;
-  var avail = p.status === 'disponível';
-  var imgWrap = document.getElementById('produto-modal-img-wrap');
-  var badgeClass = avail ? 'produto-modal-status-badge badge-ok' : 'produto-modal-status-badge badge-no';
-  var badgeText = avail ? '● Disponível' : '● Indisponível';
-  var badge = '<span class="' + badgeClass + '">' + badgeText + '</span>';
-  var fechar = '<button class="btn-fechar-modal" onclick="fecharProduto()">✕</button>';
-  if (p.img) {
-    imgWrap.innerHTML = '<img class="produto-modal-img" src="' + p.img + '" alt="' + p.name + '">' + badge + fechar;
-  } else {
-    imgWrap.innerHTML = '<div class="produto-modal-img-placeholder">🎁</div>' + badge + fechar;
-  }
-  document.getElementById('produto-modal-cat').textContent = p.cat;
-  document.getElementById('produto-modal-titulo').textContent = p.name;
-  document.getElementById('produto-modal-desc').textContent = p.desc || 'Consulte-nos para mais informações sobre este kit.';
-  document.getElementById('produto-modal-preco').textContent = 'R$ ' + p.price.toFixed(2).replace('.', ',');
-  var msg = encodeURIComponent(
-    '🎉 Olá! Gostaria de fazer um pedido!' +
-    '\n\n' +
-    '🎀 *Kit:* ' + p.name +
-    '\n📂 *Categoria:* ' + p.cat +
-    '\n💰 *Valor:* R$ ' + p.price.toFixed(2).replace('.', ',') +
-    '\n\nAguardo retorno, obrigado(a)! 😊'
-  );
-  var btn = document.getElementById('produto-modal-btn');
-  if (avail) {
-    btn.href = 'https://wa.me/5562996808263?text=' + msg;
-    btn.style.opacity = '1';
-    btn.style.pointerEvents = 'auto';
-  } else {
-    btn.href = '#';
-    btn.style.opacity = '0.5';
-    btn.style.pointerEvents = 'none';
-  }
-  var overlay = document.getElementById('produto-overlay');
-  overlay.style.display = 'block';
-  overlay.scrollTop = 0;
-  document.body.style.overflow = 'hidden';
-  document.body.style.position = 'fixed';
-  document.body.style.width = '100%';
-}
 
-function fecharProduto() {
-  document.getElementById('produto-overlay').style.display = 'none';
-  document.body.style.overflow = '';
-  document.body.style.position = '';
-  document.body.style.width = '';
-}
 
-function fecharProdutoOnBackdrop(e) {
-  if (e.target === document.getElementById('produto-overlay')) fecharProduto();
-}
+
+
+
+
+
+
+
 
 function fixStickyPositions() {
   const headerH = document.querySelector('.site-header').offsetHeight;
