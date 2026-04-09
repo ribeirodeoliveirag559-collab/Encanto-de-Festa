@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Encantos de Festas — Catálogo de Locação</title>
 <style id="custom-fonts">
@@ -163,6 +164,132 @@
 .btn-pedir-modal:hover{transform:scale(1.04);box-shadow:0 6px 24px rgba(37,211,102,0.5);}
 .btn-pedir-modal svg{width:18px;height:18px;fill:white;}
 
+
+/* ─── ANIMAÇÕES MODAL ─── */
+.produto-modal-titulo{
+  cursor:default;
+  display:inline-block;
+  transition:letter-spacing .3s ease, transform .3s ease;
+  position:relative;
+}
+.produto-modal-titulo::after{
+  content:'';
+  position:absolute;
+  left:0;bottom:-3px;
+  width:0%;height:3px;
+  background:linear-gradient(90deg,var(--pink),var(--blue));
+  border-radius:2px;
+  transition:width .4s ease;
+}
+.produto-modal-titulo:hover{
+  letter-spacing:1.5px;
+  transform:scale(1.03);
+}
+.produto-modal-titulo:hover::after{
+  width:100%;
+}
+
+.produto-modal-preco strong{
+  display:inline-block;
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1), color .25s ease, text-shadow .25s ease;
+  cursor:default;
+}
+.produto-modal-preco strong:hover{
+  transform:scale(1.12) translateY(-2px);
+  color:var(--pink);
+  text-shadow:0 4px 16px rgba(233,30,140,0.25);
+}
+
+
+/* ─── ANIMAÇÕES HERO TEMÁTICAS ─── */
+
+/* Título principal - efeito de cores que mudam como confetes */
+@keyframes festaColors {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes titleFloat {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+
+@keyframes titleShine {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.hero h1 {
+  font-size: clamp(32px,6vw,56px);
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 14px;
+  color: #c2185b;
+  -webkit-text-fill-color: #c2185b;
+  background: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+  animation: titleFloat 3s ease-in-out infinite;
+}
+
+/* Subtítulo - aparece e some suavemente com leve movimento */
+@keyframes subtitlePulse {
+  0%, 100% { opacity: 0.85; letter-spacing: 0px; color: #7B1FA2; }
+  50%       { opacity: 1;   letter-spacing: 0.5px; color: #4A148C; }
+}
+
+.hero p {
+  font-size: 17px;
+  color: var(--muted);
+  font-weight: 600;
+  max-width: 500px;
+  margin: 0 auto 28px;
+  line-height: 1.6;
+  color: #7B1FA2 !important;
+  animation: subtitlePulse 3.5s ease-in-out infinite;
+}
+
+/* Cada palavra do título com delay diferente para efeito cascata */
+@keyframes wordBounce {
+  0%, 100% { transform: translateY(0); }
+  30%       { transform: translateY(-8px) rotate(-2deg); }
+  60%       { transform: translateY(-4px) rotate(1deg); }
+}
+
+.hero-word {
+  display: inline-block;
+  animation: wordBounce 2.5s ease-in-out infinite;
+}
+.hero-word:nth-child(1) { animation-delay: 0s; }
+.hero-word:nth-child(2) { animation-delay: 0.15s; }
+.hero-word:nth-child(3) { animation-delay: 0.3s; }
+.hero-word:nth-child(4) { animation-delay: 0.45s; }
+
+/* Confetes animados no fundo do hero */
+@keyframes confettifall {
+  0%   { transform: translateY(-20px) rotate(0deg); opacity:1; }
+  100% { transform: translateY(120px) rotate(360deg); opacity:0; }
+}
+
+.confetti {
+  position: absolute;
+  font-size: 16px;
+  animation: confettifall linear infinite;
+  pointer-events: none;
+  user-select: none;
+}
+.confetti:nth-child(1)  { left:5%;  animation-duration:3.5s; animation-delay:0s;    font-size:14px; }
+.confetti:nth-child(2)  { left:12%; animation-duration:4s;   animation-delay:0.5s;  font-size:18px; }
+.confetti:nth-child(3)  { left:22%; animation-duration:3s;   animation-delay:1s;    font-size:12px; }
+.confetti:nth-child(4)  { left:35%; animation-duration:4.5s; animation-delay:0.2s;  font-size:16px; }
+.confetti:nth-child(5)  { left:48%; animation-duration:3.8s; animation-delay:1.5s;  font-size:14px; }
+.confetti:nth-child(6)  { left:58%; animation-duration:3.2s; animation-delay:0.8s;  font-size:18px; }
+.confetti:nth-child(7)  { left:68%; animation-duration:4.2s; animation-delay:0.3s;  font-size:12px; }
+.confetti:nth-child(8)  { left:78%; animation-duration:3.6s; animation-delay:1.2s;  font-size:16px; }
+.confetti:nth-child(9)  { left:88%; animation-duration:4s;   animation-delay:0.7s;  font-size:14px; }
+.confetti:nth-child(10) { left:95%; animation-duration:3.4s; animation-delay:1.8s;  font-size:18px; }
+
 </style>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -298,12 +425,13 @@ body::before{
   margin-bottom:16px;border:1.5px solid rgba(233,30,140,0.2);
 }
 .hero h1{
-  font-family:'Trebuchet MS','Gill Sans MT','Segoe UI',sans-serif;
+  font-family:'Playfair Display','Georgia',serif;
   font-size:clamp(32px,6vw,56px);
   font-weight:800;
   line-height:1.1;
-  background:linear-gradient(135deg,var(--pink) 0%,var(--blue) 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  color:#c2185b;
+  -webkit-text-fill-color:#c2185b;
+  background:none;
   margin-bottom:14px;
 }
 .hero p{
@@ -744,6 +872,89 @@ body::before{
   .footer-link{padding:8px 12px;font-size:12px;}
 }
 </style>
+<!-- Firebase SDK (compat - funciona em qualquer contexto) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAYLjv9EVAE4Tp9JkU_BUsQE8TplvkfFjQ",
+    authDomain: "encantos-de-festa.firebaseapp.com",
+    projectId: "encantos-de-festa",
+    storageBucket: "encantos-de-festa.firebasestorage.app",
+    messagingSenderId: "61940385039",
+    appId: "1:61940385039:web:47855f55d7e0f1e0d06a7a"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const storage = firebase.storage();
+
+  // Escuta em tempo real - atualiza catálogo automaticamente
+  window.initFirebase = function() {
+    console.log('Firebase iniciando...');
+    db.collection('produtos').orderBy('createdAt', 'desc').onSnapshot(function(snapshot) {
+      products = [];
+      snapshot.forEach(function(d) {
+        products.push(Object.assign({ id: d.id }, d.data()));
+      });
+      storageSave('encantos_produtos_v3', products);
+      renderCatalog();
+      renderAdminList();
+      updateStats();
+      console.log('Firebase: ' + products.length + ' produtos carregados!');
+    }, function(err) {
+      console.error('Erro Firebase:', err);
+    });
+  };
+
+  // Salvar produto
+  window.firebaseSave = async function(prod) {
+    try {
+      const editId = prod.id || '';
+      delete prod.id;
+      delete prod.tempId;
+
+      // Upload da imagem base64 para Storage
+      if (prod.img && prod.img.startsWith('data:')) {
+        const imgRef = storage.ref('produtos/' + Date.now() + '.jpg');
+        await imgRef.putString(prod.img, 'data_url');
+        prod.img = await imgRef.getDownloadURL();
+      }
+
+      if (editId) {
+        await db.collection('produtos').doc(editId).update(prod);
+      } else {
+        prod.createdAt = new Date().toISOString();
+        await db.collection('produtos').add(prod);
+      }
+      return true;
+    } catch(e) {
+      console.error('Erro ao salvar:', e);
+      return false;
+    }
+  };
+
+  // Deletar produto
+  window.firebaseDelete = async function(id, imgUrl) {
+    try {
+      await db.collection('produtos').doc(id).delete();
+      if (imgUrl && imgUrl.includes('firebasestorage')) {
+        try { await storage.refFromURL(imgUrl).delete(); } catch(e) {}
+      }
+      return true;
+    } catch(e) {
+      console.error('Erro ao deletar:', e);
+      return false;
+    }
+  };
+
+  // Inicia quando página carregar
+  window.addEventListener('DOMContentLoaded', function() {
+    window.initFirebase();
+  });
+</script>
+
 </head>
 <body>
 
@@ -774,14 +985,24 @@ body::before{
 <!-- HERO -->
 <section class="hero">
   <div class="hero-balloons">
-    <div class="balloon">🎈</div>
-    <div class="balloon">🎀</div>
-    <div class="balloon">⭐</div>
-    <div class="balloon">🎊</div>
-    <div class="balloon">🎈</div>
-    <div class="balloon">✨</div>
+    <div class="confetti">🎊</div>
+    <div class="confetti">⭐</div>
+    <div class="confetti">🎀</div>
+    <div class="confetti">✨</div>
+    <div class="confetti">🎊</div>
+    <div class="confetti">🌟</div>
+    <div class="confetti">🎀</div>
+    <div class="confetti">⭐</div>
+    <div class="confetti">✨</div>
+    <div class="confetti">🎊</div>
   </div>
-  <h1>Torne sua festa<br>inesquecível!</h1>
+  <h1>
+    <span class="hero-word">Torne</span>
+    <span class="hero-word"> sua</span>
+    <span class="hero-word"> festa</span>
+    <br>
+    <span class="hero-word">inesquecível!</span>
+  </h1>
   <p>Kits completos de aniversário, decorações temáticas e muito mais para o seu evento especial.</p>
 </section>
 
@@ -883,6 +1104,8 @@ body::before{
                 <option>Kit Aniversário</option>
                 <option>Kit Temático</option>
                 <option>Decoração</option>
+                <option>Chá Revelação</option>
+                <option>Batizado</option>
                 <option>Balões</option>
                 <option>Acessórios</option>
                 <option>Outro</option>
@@ -902,7 +1125,7 @@ body::before{
             <div class="form-group full">
               <label>Imagem do produto (opcional)</label>
               <div class="img-upload-wrap">
-                <input type="file" id="f-img-file" accept="image/*" capture="environment" onchange="handleImageUpload(this)" style="display:none">
+                <input type="file" id="f-img-file" accept="image/*" onchange="handleImageUpload(this)" style="display:none">
                 <div class="img-upload-btn" onclick="document.getElementById('f-img-file').click()">
                   <span id="img-upload-label">📷 Selecionar imagem / Fototeca</span>
                 </div>
@@ -941,19 +1164,31 @@ body::before{
 
 <script>
 const STORAGE_KEY = 'encantos_produtos_v3';
+
+// Storage local como fallback enquanto Firebase não carrega
+function storageSave(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch(e) {}
+}
+function storageLoad(key) {
+  try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch(e) { return null; }
+}
 const ADMIN_PASS = 'nnannynnh';
 let products = [];
 let activeFilter = '';
 
 /* ── STORAGE ── */
 function loadProducts() {
-  try { products = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e) { products = []; }
+  // Carrega cache local enquanto Firebase conecta
+  try {
+    products = storageLoad(STORAGE_KEY) || [];
+  } catch(e) { products = []; }
   renderCatalog();
   renderAdminList();
   updateStats();
 }
 function saveProducts() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+  // Salva localmente como cache
+  storageSave(STORAGE_KEY, products);
 }
 
 /* ── TOAST ── */
@@ -999,7 +1234,14 @@ function renderCatalog() {
     const thumbHtml = p.img
       ? `<div class="product-thumb"><img src="${p.img}" alt="${p.name}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=product-thumb-emoji>🎁</div>'"><div class="prod-badge ${p.status==='disponível'?'':'unavail'}">${p.status==='disponível'?'Disponível':'Indisponível'}</div></div>`
       : `<div class="product-thumb"><div class="product-thumb-emoji">🎁</div><div class="prod-badge ${p.status==='disponível'?'':'unavail'}">${p.status==='disponível'?'Disponível':'Indisponível'}</div></div>`;
-    const msg = encodeURIComponent(`Olá! Tenho interesse no kit: *${p.name}* (R$ ${p.price.toFixed(2).replace('.',',')}). Gostaria de mais informações!`);
+    const msg = encodeURIComponent(
+      '🎉 Olá! Gostaria de fazer um pedido!' +
+      '\n\n' +
+      '🎀 *Kit:* ' + p.name +
+      '\n📂 *Categoria:* ' + p.cat +
+      '\n💰 *Valor:* R$ ' + p.price.toFixed(2).replace('.', ',') +
+      '\n\nAguardo retorno, obrigado(a)! 😊'
+    );
     return `<div class="product-card" style="animation-delay:${i*0.05}s;cursor:pointer;" onclick="abrirProduto('${p.id}')">
       ${thumbHtml}
       <div class="product-body">
@@ -1034,7 +1276,8 @@ function updateStats() {
   wrap.innerHTML = `<button class="cat-btn ${!cur?'active':''}" data-cat="" onclick="setFilter(this)">Todos</button>`;
   const icons = {
     'Kit Aniversário':'🎂','Kit Temático':'🦸','Decoração':'🌸',
-    'Balões':'🎈','Acessórios':'🎀','Outro':'🎁'
+    'Chá Revelação':'🎀','Batizado':'👼','Balões':'🎈',
+    'Acessórios':'🎀','Outro':'🎁'
   };
   cats.forEach(c => {
     const ic = icons[c]||'🎁';
@@ -1078,7 +1321,14 @@ function abrirProduto(id) {
     'R$ ' + p.price.toFixed(2).replace('.', ',');
 
   // Botão WhatsApp
-  var msg = encodeURIComponent('Olá! Tenho interesse no kit: *' + p.name + '* — R$ ' + p.price.toFixed(2).replace('.', ',') + '. Gostaria de mais informações!');
+  var msg = encodeURIComponent(
+    '🎉 Olá! Gostaria de fazer um pedido!' +
+    '\n\n' +
+    '🎀 *Kit:* ' + p.name +
+    '\n📂 *Categoria:* ' + p.cat +
+    '\n💰 *Valor:* R$ ' + p.price.toFixed(2).replace('.', ',') +
+    '\n\nAguardo retorno, obrigado(a)! 😊'
+  );
   var btn = document.getElementById('produto-modal-btn');
   if (avail) {
     btn.href = 'https://wa.me/5562996808263?text=' + msg;
@@ -1234,14 +1484,21 @@ function editProduct(id) {
   document.getElementById('edit-notice').classList.add('show');
   document.getElementById('admin-modal').scrollTo({top:0,behavior:'smooth'});
 }
-function deleteProduct(id) {
+async function deleteProduct(id) {
   if(!confirm('Excluir este produto?'))return;
-  products=products.filter(p=>p.id!==id);
-  saveProducts();
-  renderAdminList();
-  renderCatalog();
-  updateStats();
-  toast('🗑️ Produto removido.');
+  const prod = products.find(p=>p.id===id);
+  if (window.firebaseDelete) {
+    const ok = await window.firebaseDelete(id, prod ? prod.img : null);
+    if(ok) toast('🗑️ Produto removido.');
+    else toast('❌ Erro ao remover.', false);
+  } else {
+    products=products.filter(p=>p.id!==id);
+    storageSave(STORAGE_KEY, products);
+    renderAdminList();
+    renderCatalog();
+    updateStats();
+    toast('🗑️ Produto removido.');
+  }
 }
 function renderAdminList() {
   const list=document.getElementById('admin-prod-list');
